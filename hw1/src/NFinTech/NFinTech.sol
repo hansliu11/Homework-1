@@ -107,6 +107,10 @@ contract NFinTech is IERC721 {
 
     function transferFrom(address from, address to, uint256 tokenId) public {
         // TODO: please add your implementaiton here
+        _transferForm(from, to, tokenId);
+    }
+
+    function _transferForm(address from, address to, uint256 tokenId) internal {
         address owner = _owner[tokenId];
         require(msg.sender == owner || isApprovedForAll(owner, msg.sender) || getApproved(tokenId) == msg.sender, "Not auth to transfer from this token");
         require(from == owner , "Not owner of this token");
@@ -129,7 +133,7 @@ contract NFinTech is IERC721 {
     }
 
     function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal {
-        transferFrom(from, to, tokenId);
+        _transferForm(from, to, tokenId);
         require(_checkOnERC721Received(from, to, tokenId, data), "ERROR: ERC721Receiver is not implmeneted");
     }
 
