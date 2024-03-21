@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+// import {console2} from "forge-std/Test.sol";
+// console2.log("Get 10 points")
+
 interface IERC20 {
     function totalSupply() external view returns (uint256);
     function balanceOf(address account) external view returns (uint256);
@@ -15,6 +18,7 @@ interface IERC20 {
 
 contract LiaoToken is IERC20 {
     // TODO: you might need to declare several state variable here
+    mapping(address account => mapping(address spender => uint256)) private _allowances;
     mapping(address account => uint256) private _balances;
     mapping(address account => bool) isClaim;
 
@@ -60,17 +64,36 @@ contract LiaoToken is IERC20 {
 
     function transfer(address to, uint256 amount) external returns (bool) {
         // TODO: please add your implementaiton here
+        require(_balances[msg.sender] >= amount, "Not enough balance");
+        _balances[msg.sender] -= amount;
+        _balances[to] += amount; 
+        emit Transfer(msg.sender, to, amount);
+
+        return true;
     }
 
     function transferFrom(address from, address to, uint256 value) external returns (bool) {
         // TODO: please add your implementaiton here
+        uint amount = _allowances[from][msg.sender];
+        require(amount >= value, "Not enough allowance !");
+        _allowances[from][msg.sender] -= value;
+        _balances[to] += value;
+        _balances[from] -= value;
+        emit Transfer(from, to, value);
+        return true;
     }
 
     function approve(address spender, uint256 amount) external returns (bool) {
         // TODO: please add your implementaiton here
+        _allowances[msg.sender][spender] = amount;
+        emit Approval(msg.sender, spender, amount);
+        return true;
     }
 
     function allowance(address owner, address spender) public view returns (uint256) {
         // TODO: please add your implementaiton here
+        return _allowances[owner][spender];
     }
+
+    
 }
